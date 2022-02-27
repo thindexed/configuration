@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ias-rotation-configmap
+  namespace: default
+data:
+  service.ini: |
+      [source]
+          # the namespace where the bindings and secrets lives
+          #
+          namespace=integration
+
+          # The service instance which need credential rotation
+          #
+          instance=ias-app-instance
+
+          # The binding names for the rotation
+          #
+          binding_a=ias-binding-a
+          binding_b=ias-binding-b
+
+      [target]
+          # the namespace where the target secret lives
+          #
+          namespace=auth
+
+          # The secret to update with the new binding credential
+          #
+          secret=ias-binding
