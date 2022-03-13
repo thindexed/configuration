@@ -1,7 +1,6 @@
 # configuration
 basic configuration for the application
 
-
 ```sh
 
 kubectl create ns argocd
