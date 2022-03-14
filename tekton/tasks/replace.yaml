@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: replace
+spec:
+  params:
+    - name: FILE_SOURCE
+      description: The source file to scan and replace
+    - name: FILE_TARGET
+      description: The target file to write
+    - name: SEARCH
+      description: The tag to search and replace
+    - name: REPLACE
+      description: The content to use for the replacement
+  workspaces:
+    - name: source
+  steps:
+    # Add an extra step to list the contents of /workspace
+    # You might add this before or after another Task
+    - name: replace
+      image: alpine
+      workingDir: $(workspaces.source.path)
+      command:
+        - /bin/sh
+      args:
+        - '-c'
+        - |
+          cat $(params.FILE_SOURCE) | sed "s~$(params.SEARCH)~$(params.REPLACE)~g" > $(params.FILE_TARGET)
+          cat $(params.FILE_SOURCE)
+          echo "=============================="
+          cat $(params.FILE_TARGET)
+      resources: {}

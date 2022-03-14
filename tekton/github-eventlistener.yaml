@@ -1,0 +1,12 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: EventListener
+metadata:
+  name: github-eventlistener
+spec:
+  serviceAccountName: github-eventlistener
+  triggers:
+    - triggerRef: github-trigger-build
+    - triggerRef: github-trigger-deploy
+  resources:
+    kubernetesResource:
+      serviceType: LoadBalancer

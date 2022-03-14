@@ -1,0 +1,141 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: github-pipeline-build
+spec:
+  params:
+    - name: commits
+      description: commits pushed in the branch
+      type: string
+    - name: gitRepository
+      description: the git repository to build and deploy
+      type: string
+  workspaces:
+    - name: myworkspace
+    - name: git-auth
+  tasks:
+    - name: file-changed
+      taskRef:
+        name: file-changed
+      params:
+        - name: commits
+          value: $(params.commits)
+        - name: filename
+          value: "src/"
+    - name: git-clone
+      taskRef:
+        name: git-cli
+      params:
+      # we need all branches available for git-version
+      - name: GIT_SCRIPT
+        value: |
+          rm -r ./*
+          git clone $(params.gitRepository) .
+          git fetch --all
+      workspaces:
+        - name: source
+          workspace: myworkspace
+        - name: input
+          workspace: myworkspace
+      runAfter:
+        - file-changed
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]
+    - name: configuration
+      params:
+        - name: filename
+          value: .tekton/env.ini
+      taskRef:
+        name: configuration
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: source
+          workspace: myworkspace
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]
+    - name: git-version
+      params:
+        - name: branch
+          value: main
+      runAfter:
+        - git-clone
+      taskRef:
+        name: git-version
+      workspaces:
+        - name: source
+          workspace: myworkspace
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]
+    - name: build
+      taskRef:
+        name: buildah
+      runAfter:
+        - git-version
+      params:
+        - name: IMAGE
+          value: $(tasks.configuration.results.ociimage)
+        - name: VERSION
+          value: $(tasks.git-version.results.packageVersion) 
+        - name: IMAGE_PUSH_SECRET_NAME
+          value: image-push-secrets
+        - name: DOCKERFILE
+          value: "./src/Dockerfile"
+      workspaces:
+        - name: source
+          workspace: myworkspace
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]
+    - name: prepare-deployment-yaml
+      params:
+        - name: FILE_SOURCE
+          value: ./yaml/deployment.tmpl
+        - name: FILE_TARGET
+          value: ./yaml/deployment.yaml
+        - name: SEARCH
+          value: <image-name>
+        - name: REPLACE
+          value: $(tasks.configuration.results.ociimage):$(tasks.git-version.results.packageVersion) 
+      taskRef:
+        name: replace
+      runAfter:
+        - build
+      workspaces:
+        - name: source
+          workspace: myworkspace
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]
+    - name: git-commit
+      taskRef:
+        name: git-cli
+      runAfter:
+        - prepare-deployment-yaml
+      params:
+      - name: GIT_SCRIPT
+        value: |
+          git config --global user.email "a.herz@freegroup.de"
+          git config --global user.name "freegroup"
+          git add *
+          git commit -a -m "tekton build" 
+          git push origin main
+      workspaces:
+        - name: source
+          workspace: myworkspace
+        - name: input
+          workspace: myworkspace
+        - name: basic-auth
+          workspace: git-auth
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]

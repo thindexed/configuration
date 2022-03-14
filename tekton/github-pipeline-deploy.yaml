@@ -1,0 +1,62 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: github-pipeline-deploy
+spec:
+  params:
+    - name: commits
+      description: commits pushed in the branch
+      type: string
+    - name: gitRepository
+      description: the git repository to build and deploy
+      type: string
+  workspaces:
+    - name: myworkspace
+    - name: kubeconfig
+  tasks:
+    - name: file-changed
+      taskRef:
+        name: file-changed
+      params:
+        - name: commits
+          value: $(params.commits)
+        - name: filename
+          value: "yaml/"
+    - name: git-clone
+      taskRef:
+        name: git-cli
+      params:
+      # we need all branches available for git-version
+      - name: GIT_SCRIPT
+        value: |
+          rm -r ./*
+          git clone $(params.gitRepository) .
+          git fetch --all
+      workspaces:
+        - name: source
+          workspace: myworkspace
+        - name: input
+          workspace: myworkspace
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]
+    - name: deploy
+      taskRef:
+        name: kubernetes-actions
+      runAfter:
+        - git-clone
+      params:
+      - name: script
+        value: |
+          kubectl apply -f ./yaml
+      workspaces:
+        - name: kubeconfig-dir
+          workspace: kubeconfig
+        - name: manifest-dir
+          workspace: myworkspace
+      when:
+        - input: "$(tasks.file-changed.results.is_file_changed)"
+          operator: in
+          values: ["yes"]
+  

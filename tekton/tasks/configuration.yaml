@@ -1,0 +1,22 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: configuration
+spec:
+  workspaces:
+    - name: source
+  params:
+    - name: filename
+      type: string
+      description: name of the config file to read and inject
+  results:
+    - name: ociimage
+      description: The oci-image name
+  steps:
+    - name: read
+      workingDir: $(workspaces.source.path)
+      image: bash:latest
+      script: |
+        #!/usr/bin/env bash
+        source <(grep = .tekton/env.ini)
+        echo -n $OCIIMAGE | tee $(results.ociimage.path)

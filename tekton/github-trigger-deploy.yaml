@@ -1,0 +1,19 @@
+apiVersion: triggers.tekton.dev/v1beta1
+kind: Trigger
+metadata:
+  name: github-trigger-deploy
+spec:
+  interceptors:
+    - ref:
+        name: "github"
+      params:
+        - name: "secretRef"
+          value:
+            secretName: github-webhook
+            secretKey: secret
+        - name: "eventTypes"
+          value: ["push"]
+  bindings:
+    - ref: github-binding
+  template:
+    ref: github-triggertemplate-deploy

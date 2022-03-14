@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: file-changed
+spec:
+  params:
+    - name: commits
+      type: string
+      description: commits pushed in the branch
+    - name: filename
+      type: string
+      description: name of file which we want to check whether modified or not
+  results:
+    - name: is_file_changed
+      description: The following result will return yes if config.yaml changed else no
+  steps:
+    - name: iterate-commits
+      image: registry.access.redhat.com/ubi8/ubi-minimal:8.2
+      script: |
+        #!/usr/libexec/platform-python
+
+        import sys
+        import json
+
+        commits = json.loads("""$(params.commits)""")
+        contains = False
+        filter = "$(params.filename)"
+        for commit in commits:
+          if len([x for x in commit["added"] if x.startswith(filter)]) > 0:
+              contains = True
+              break
+          if len([x for x in commit["modified"] if x.startswith(filter)]) > 0:
+              contains = True
+              break
+          if len([x for x in commit["removed"] if x.startswith(filter)]) > 0:
+              contains = True
+              break
+
+        if contains == True:
+          with open("$(results.is_file_changed.path)", "w") as file_changed:
+            file_changed.write("yes")
+        else:
+          with open("$(results.is_file_changed.path)", "w") as file_changed:
+            file_changed.write("no")
