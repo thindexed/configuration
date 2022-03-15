@@ -86,10 +86,11 @@ spec:
         - name: IMAGE_PUSH_SECRET_NAME
           value: image-push-secrets
         - name: DOCKERFILE
-          value: "./src/Dockerfile"
+          value: "Dockerfile"
       workspaces:
         - name: source
           workspace: myworkspace
+          subPath: src
       when:
         - input: "$(tasks.file-changed.results.is_file_changed)"
           operator: in
