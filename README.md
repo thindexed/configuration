@@ -3,6 +3,9 @@
 ```
 brew install tektoncd-cli
 
+https://medium.com/nontechcompany/build-docker-image-using-tekton-pipeline-buildah-fe62a8f70a75
+
+
 # pipelines
 kubectl apply -f https://storage.googleapis.com/tekton-releases/pipeline/latest/release.yaml
 

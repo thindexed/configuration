@@ -30,7 +30,7 @@ spec:
       - name: GIT_SCRIPT
         value: |
           rm -r ./*
-          git clone $(params.gitRepository) .
+          git clone  --recurse-submodules --remote-submodules $(params.gitRepository) .
           git fetch --all
       workspaces:
         - name: source
