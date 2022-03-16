@@ -26,11 +26,13 @@ spec:
       taskRef:
         name: git-cli
       params:
-      # we need all branches available for git-version
+      - name: BASE_IMAGE
+        value: alpine/git:v2.32.0
       - name: GIT_SCRIPT
         value: |
           rm -r ./*
-          git clone $(params.gitRepository) .
+          git --version
+          git clone  --recurse-submodules --remote-submodules $(params.gitRepository) .
           git fetch --all
       workspaces:
         - name: source
@@ -49,7 +51,7 @@ spec:
       params:
       - name: script
         value: |
-          kubectl apply -f ./yaml
+          ./deploy.sh
       workspaces:
         - name: kubeconfig-dir
           workspace: kubeconfig
