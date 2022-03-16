@@ -18,25 +18,26 @@ kubectl apply --filename https://storage.googleapis.com/tekton-releases/triggers
 ```
 
 ```
+kubectl create ns cicd
+
 export DOCKER_USERNAME=<DOCKERUSER>
 export DOCKER_PASSWORD=<DOCKERPASSWORD>
-kubectl create secret generic image-push-secrets "--from-literal=username=$DOCKER_USERNAME" "--from-literal=password=$DOCKER_PASSWORD"
+kubectl create secret generic -n cicd image-push-secrets "--from-literal=username=$DOCKER_USERNAME" "--from-literal=password=$DOCKER_PASSWORD"
 
 ```
 
 Install required tasks
 
 ```
-kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-cli/0.3/git-cli.yaml
-kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-version/0.1/git-version.yaml
-kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/buildah/0.2/buildah.yaml
-kubectl apply -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/kubernetes-actions/0.2/kubernetes-actions.yaml
+kubectl apply -n cicd -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-cli/0.3/git-cli.yaml
+kubectl apply -n cicd -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/git-version/0.1/git-version.yaml
+kubectl apply -n cicd -f https://raw.githubusercontent.com/tektoncd/catalog/main/task/kubernetes-actions/0.2/kubernetes-actions.yaml
 
 ```
 
 
 ```
-kubectl create secret generic kubeconfig --from-file=kubeconfig=./kubeconfig.yaml
+kubectl create secret generic -n cicd kubeconfig --from-file=kubeconfig=./kubeconfig.yaml
 
 ```
 

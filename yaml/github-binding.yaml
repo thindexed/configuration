@@ -2,6 +2,7 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerBinding
 metadata:
   name: github-binding
+  namespace: cicd
 spec:
   params:
     - name: gitRepository

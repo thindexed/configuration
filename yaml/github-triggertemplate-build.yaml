@@ -1,7 +1,8 @@
 apiVersion: triggers.tekton.dev/v1beta1
 kind: TriggerTemplate
 metadata:
-  name: github-triggertemplate-deploy
+  name: github-triggertemplate-build
+  namespace: cicd
   annotations:
     triggers.tekton.dev/old-escape-quotes: "true"
 spec:
@@ -17,16 +18,16 @@ spec:
         generateName: github-run-
       spec:
         pipelineRef:
-          name: github-pipeline-deploy
+          name: github-pipeline-build
         params:
           - name: gitRepository
             value: "$(tt.params.gitRepository)"
           - name: commits
             value: "$(tt.params.commits)"
         workspaces:
-          - name: kubeconfig
+          - name: git-auth
             secret:
-              secretName: kubeconfig
+              secretName: github-auth-secret
           - name: myworkspace
             volumeClaimTemplate:
               spec:

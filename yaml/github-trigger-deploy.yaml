@@ -2,6 +2,7 @@ apiVersion: triggers.tekton.dev/v1beta1
 kind: Trigger
 metadata:
   name: github-trigger-deploy
+  namespace: cicd
 spec:
   interceptors:
     - ref:

@@ -2,6 +2,7 @@ apiVersion: tekton.dev/v1beta1
 kind: Pipeline
 metadata:
   name: github-pipeline-deploy
+  namespace: cicd
 spec:
   params:
     - name: commits
