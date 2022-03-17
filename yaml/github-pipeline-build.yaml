@@ -35,6 +35,7 @@ spec:
           git --version
           git clone  --recurse-submodules --remote-submodules $(params.gitRepository) .
           git fetch --all
+          [ -f ./after-git-clone.sh ] && ./after-git-clone.sh
       workspaces:
         - name: source
           workspace: myworkspace
