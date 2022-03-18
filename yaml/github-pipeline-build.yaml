@@ -77,11 +77,23 @@ spec:
         - input: "$(tasks.file-changed.results.is_file_changed)"
           operator: in
           values: ["yes"]
+    - name: npm-build
+      taskRef:
+        name: npm
+      runAfter:
+        - git-version
+      workspaces:
+        - name: source
+          workspace: myworkspace
+      when:
+        - input: "$(tasks.configuration.results.npmbuild)"
+          operator: in
+          values: ["yes"]
     - name: build
       taskRef:
         name: buildah
       runAfter:
-        - git-version
+        - npm-build
       params:
         - name: IMAGE
           value: $(tasks.configuration.results.ociimage)

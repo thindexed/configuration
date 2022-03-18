@@ -13,6 +13,8 @@ spec:
   results:
     - name: ociimage
       description: The oci-image name
+    - name: npmbuild
+      description: yes/no flag to indicate if the npm-build task should run
   steps:
     - name: read
       workingDir: $(workspaces.source.path)
@@ -21,3 +23,4 @@ spec:
         #!/usr/bin/env bash
         source <(grep = .tekton/env.ini)
         echo -n $OCIIMAGE | tee $(results.ociimage.path)
+        echo -n $NPMBUILD | tee $(results.npmbuild.path)
