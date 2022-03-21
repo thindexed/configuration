@@ -19,7 +19,7 @@ spec:
       description: The path where package.json of the project is defined.
     - name: IMAGE
       type: string
-      default: "docker.io/node:16-alpine3.15"
+      default: "docker.io/node:17.7.2-alpine3.15"
       description: The node image you want to use.
   steps:
     - name: npm-build
