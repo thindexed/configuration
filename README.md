@@ -27,6 +27,21 @@ kubectl create secret generic -n cicd image-push-secrets "--from-literal=usernam
 
 ```
 
+```sh
+# create GITHUB secret for the backend to push changed files
+export GITHUB_ORG=thindexed
+export GITHUB_REPO=shapes
+export GITHUB_TOKEN=<GITHUB-TOKEN>
+
+kubectl create secret generic \
+    github-secrets \
+    "--from-literal=GITHUB_ORG=$GITHUB_ORG" \
+    "--from-literal=GITHUB_REPO=$GITHUB_REPO" \
+    "--from-literal=GITHUB_TOKEN=$GITHUB_TOKEN"
+
+```
+
+
 Install required tasks
 
 ```sh
