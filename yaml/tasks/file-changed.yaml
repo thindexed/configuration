@@ -22,8 +22,7 @@ spec:
         import sys
         import json
 
-        print($(params.commits))
-        commits = json.loads("""$(params.commits)""")
+        commits = $(params.commits)
         contains = False
         filter = "$(params.filename)"
         for commit in commits:
