@@ -23,6 +23,7 @@ spec:
         import sys
         import json
 
+        console.log($(params.commits))
         commits = json.loads("""$(params.commits)""")
         contains = False
         filter = "$(params.filename)"
