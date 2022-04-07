@@ -42,3 +42,4 @@ spec:
         else:
           with open("$(results.is_file_changed.path)", "w") as file_changed:
             file_changed.write("no")
+
