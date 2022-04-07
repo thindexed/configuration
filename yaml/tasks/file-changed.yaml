@@ -21,6 +21,9 @@ spec:
         #!/usr/libexec/platform-python
         import sys
         import json
+        
+        true = True
+        false = False
 
         commits = $(params.commits)
         contains = False
